@@ -1,0 +1,31 @@
+# Third-party repository evaluation (2026-11-03)
+
+Goal: reuse only what solves a real Session Bridge requirement. **Result: none integrated; no code or dependency was
+copied.** Evidence level: GitHub pages were read directly for ponytail, hallmark and impeccable; the rest were judged
+from search-result excerpts and third-party listings (marked †), so verify licenses on the repository pages before
+any future reuse.
+
+| # | Repository | What it is | License | Relevance to Session Bridge | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `morliuto/rea` (**link is a typo: 404**; real project is `morluto/rea`) | Agent toolkit for reverse engineering apps and binaries | MIT † | None (not a handoff/API/MCP concern) | Skip. Beware lookalike/fake repos reported in coverage |
+| 2 | `DietrichGebert/ponytail` | "Laziest senior dev" minimal-code discipline plugin/skill with hooks for coding agents | MIT | Dev-time behaviour aid only; overlaps the master prompt's own rules | Optional personal tool; do not vendor |
+| 3 | `Nutlope/hallmark` | Anti-"AI slop" web design skill | MIT | No UI in the MVP | Skip |
+| 4 | `pbakaus/impeccable` | Design vocabulary/review commands for coding agents | Apache-2.0 | No UI in the MVP | Skip (hooks outside model approval, telemetry, binary download per its README) |
+| 5 | `nextlevelbuilder/ui-ux-pro-max-skill` | UI/UX design knowledge skill | MIT † | No UI in the MVP | Skip |
+| 6 | `cathrynlavery/diagram-design` | Skill emitting HTML + inline-SVG diagrams | MIT † | README diagram is covered by GitHub-native Mermaid | Skip (revisit for a docs site) |
+| 7 | `blader/humanizer` | Skill that rewrites text to remove "AI writing" tells | MIT † (catalog derived from a CC BY-SA Wikipedia guide) | Prose polish only; many same-name forks | Skip |
+| 8 | `onyx-dot-app/onyx` | Self-hosted AI chat / enterprise search platform | MIT community edition; separate enterprise license for `ee` code † | A different, heavy product (many services) | Skip; no reuse |
+| 9 | `myanhorn/last30days-skill` (**link is a typo: 404**; real project is `mvanhorn/last30days-skill`) | Multi-source "last 30 days" research skill | MIT † | None; needs scraping/API keys | Skip |
+| 10 | `D4Vinci/Scrapling` | Python adaptive web-scraping framework with anti-bot features | BSD-3-Clause † | Wrong language; no scraping requirement; ToS/legal exposure | Skip |
+| 11 | `Leonxlnx/unlazy` | Completion-gate skill: checklist ledger plus a checker that runs commands, optional hooks | MIT † | Its idea ("do not claim done without evidence") is already a Session Bridge rule | Skip (a third-party audit flags its command-execution design as high risk) |
+
+## Concerns worth remembering
+
+- **Lookalike URLs:** two supplied links do not exist (`morliuto`, `myanhorn`). Typosquatted GitHub accounts are a
+  real malware vector; install only from verified owners.
+- **Hooks/executables:** impeccable, unlazy and ponytail install hooks or run helper scripts. Hooks run with your
+  permissions; read them before enabling. Not appropriate to add to a product that handles bearer tokens.
+- **Licenses:** MIT/Apache-2.0/BSD-3 allow reuse with attribution, but copying prompt text or catalogs (humanizer's
+  CC BY-SA-derived list) can carry share-alike duties. No attribution is needed because nothing was copied.
+- **Skill authoring:** the `/newsession` skill follows Anthropic's Claude Code skill format (frontmatter `name` and
+  `description`, directory name = command, under 500 lines), not any of these repositories.

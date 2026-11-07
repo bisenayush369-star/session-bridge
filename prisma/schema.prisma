@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../apps/api/src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// One saved session handoff. Only the HMAC of the retrieval token is stored.
+model Handoff {
+  id             String    @id @default(uuid()) @db.Uuid
+  publicId       String    @unique @map("public_id")
+  memory         Json
+  schemaVersion  Int       @default(1) @map("schema_version")
+  tokenHash      String    @map("token_hash")
+  payloadBytes   Int       @map("payload_bytes")
+  retention      String
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz(3)
+  lastAccessedAt DateTime? @map("last_accessed_at") @db.Timestamptz(3)
+  revokedAt      DateTime? @map("revoked_at") @db.Timestamptz(3)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@index([deletedAt])
+  @@index([lastAccessedAt])
+  @@map("handoffs")
+}

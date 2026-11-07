@@ -1,0 +1,4 @@
+dist
+node_modules
+apps/api/src/generated
+prisma/migrations

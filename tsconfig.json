@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node"],
+    "paths": {
+      "@session-bridge/shared": ["./packages/shared/src/index.ts"],
+      "@session-bridge/shared/schema": ["./packages/shared/src/schema.ts"],
+      "@session-bridge/mcp-server": ["./packages/mcp-server/src/lib.ts"]
+    }
+  },
+  "include": ["apps", "packages", "tests", "prisma.config.ts", "vitest.config.ts"],
+  "exclude": ["**/dist", "**/node_modules"]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "session-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Passwordless, API-first handoff store for continuing long AI coding sessions in a fresh conversation.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "packages/shared",
+    "apps/api",
+    "packages/mcp-server"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d db",
+    "db:generate": "prisma generate",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "build": "npm run db:generate && npm run build -w @session-bridge/shared && npm run build -w @session-bridge/mcp-server && npm run build -w @session-bridge/api",
+    "dev": "tsx watch apps/api/src/server.ts",
+    "start": "node apps/api/dist/server.js",
+    "cleanup": "tsx apps/api/src/scripts/admin.ts cleanup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "cleanup:prod": "node apps/api/dist/scripts/admin.js cleanup"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "dotenv": "^16.4.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "prisma": "7.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.2.0"
+  }
+}

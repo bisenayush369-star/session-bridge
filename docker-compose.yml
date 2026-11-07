@@ -1,0 +1,20 @@
+# Local development database only. Credentials here are throwaway dev values.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: session_bridge
+      POSTGRES_PASSWORD: dev_only_change_me
+      POSTGRES_DB: session_bridge
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U session_bridge -d session_bridge']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  pgdata:
