@@ -36,14 +36,14 @@ flowchart LR
   CRON[cleanup job] --> SVC
 ```
 
-| Path | Purpose |
-| --- | --- |
-| `apps/api` | Fastify API: REST routes, hosted MCP endpoint `/mcp`, rate limiting/guard, services, repositories, cleanup, admin CLI |
-| `packages/shared` | Zod schemas, memory engine (normalize, dedupe, budget), redaction, resume builder |
-| `packages/mcp-server` | MCP server (official TypeScript SDK, stdio): `create_handoff`, `resume_handoff`, `delete_handoff`, `search_archive` |
-| `packages/skill/newsession` | Claude Code skill providing `/newsession` |
-| `prisma` | Schema and SQL migrations |
-| `tests` | Vitest suites |
+| Path                        | Purpose                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `apps/api`                  | Fastify API: REST routes, hosted MCP endpoint `/mcp`, rate limiting/guard, services, repositories, cleanup, admin CLI |
+| `packages/shared`           | Zod schemas, memory engine (normalize, dedupe, budget), redaction, resume builder                                     |
+| `packages/mcp-server`       | MCP server (official TypeScript SDK, stdio): `create_handoff`, `resume_handoff`, `delete_handoff`, `search_archive`   |
+| `packages/skill/newsession` | Claude Code skill providing `/newsession`                                                                             |
+| `prisma`                    | Schema and SQL migrations                                                                                             |
+| `tests`                     | Vitest suites                                                                                                         |
 
 Stack: Node.js ≥ 22.12, TypeScript (strict), Fastify 5, Zod 3, PostgreSQL + Prisma 7 (`@prisma/adapter-pg`), MCP
 TypeScript SDK 1.x, Vitest, ESLint, Prettier, Docker Compose, npm workspaces.
@@ -77,22 +77,22 @@ DB integration tests: `DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate deploy
 All configuration is environment-based and validated at startup (errors name variables, never values). See
 `.env.example` for every variable. Key ones:
 
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `DATABASE_URL` | – | PostgreSQL URL (required in production) |
-| `TOKEN_PEPPER` | – (required, ≥ 32 chars) | Key for the HMAC that hashes retrieval tokens. Rotating it invalidates all tokens. Placeholder rejected in production |
-| `TRUST_PROXY` | `false` | Set `true`/hop count/CIDRs behind a proxy so client IP and `https` are detected |
-| `REQUIRE_HTTPS` | `true` in production | Non-https requests get 426 (`/health` exempt) |
-| `MAX_BODY_BYTES` | 262144 | HTTP body cap (413 above) |
-| `MEMORY_BUDGET_BYTES` | 65536 | Stored memory budget; larger payloads are reduced deterministically and flagged |
-| `DEFAULT_RETENTION` | `30d` | `24h`, `30d` or `90d` (persistent can never be the default) |
-| `ALLOW_PERSISTENT_RETENTION` | `true` | Allow explicit `persistent` |
-| `PERSISTENT_INACTIVITY_DAYS` | 365 | Persistent handoffs unused this long are purged (0 disables) |
-| `TOMBSTONE_DAYS` | 7 | Grace period during which repeated DELETEs stay idempotent |
-| `CLEANUP_INTERVAL_MINUTES` | 60 | In-process cleanup cadence (0 = run `npm run cleanup:prod` from cron) |
-| `REDACT_SECRETS` | `true` | Best-effort secret redaction on create |
-| `MCP_ACCESS_TOKEN` | – (optional, ≥ 24 chars) | Shared key required on `POST /mcp` (`X-Session-Bridge-Key` or `Authorization: Bearer`). Recommended for a personal deployment |
-| `DB_POOL_MAX` | 10 | pg pool size per instance |
+| Variable                     | Default                  | Meaning                                                                                                                       |
+| ---------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`               | –                        | PostgreSQL URL (required in production)                                                                                       |
+| `TOKEN_PEPPER`               | – (required, ≥ 32 chars) | Key for the HMAC that hashes retrieval tokens. Rotating it invalidates all tokens. Placeholder rejected in production         |
+| `TRUST_PROXY`                | `false`                  | Set `true`/hop count/CIDRs behind a proxy so client IP and `https` are detected                                               |
+| `REQUIRE_HTTPS`              | `true` in production     | Non-https requests get 426 (`/health` exempt)                                                                                 |
+| `MAX_BODY_BYTES`             | 262144                   | HTTP body cap (413 above)                                                                                                     |
+| `MEMORY_BUDGET_BYTES`        | 65536                    | Stored memory budget; larger payloads are reduced deterministically and flagged                                               |
+| `DEFAULT_RETENTION`          | `30d`                    | `24h`, `30d` or `90d` (persistent can never be the default)                                                                   |
+| `ALLOW_PERSISTENT_RETENTION` | `true`                   | Allow explicit `persistent`                                                                                                   |
+| `PERSISTENT_INACTIVITY_DAYS` | 365                      | Persistent handoffs unused this long are purged (0 disables)                                                                  |
+| `TOMBSTONE_DAYS`             | 7                        | Grace period during which repeated DELETEs stay idempotent                                                                    |
+| `CLEANUP_INTERVAL_MINUTES`   | 60                       | In-process cleanup cadence (0 = run `npm run cleanup:prod` from cron)                                                         |
+| `REDACT_SECRETS`             | `true`                   | Best-effort secret redaction on create                                                                                        |
+| `MCP_ACCESS_TOKEN`           | – (optional, ≥ 24 chars) | Shared key required on `POST /mcp` (`X-Session-Bridge-Key` or `Authorization: Bearer`). Recommended for a personal deployment |
+| `DB_POOL_MAX`                | 10                       | pg pool size per instance                                                                                                     |
 
 ## API
 
@@ -163,15 +163,15 @@ Do not send a `Content-Type` header without a body.
 
 `200 {"status":"ok"}` or `503 {"status":"unavailable"}` (database unreachable). Nothing else is exposed.
 
-| Status | Meaning |
-| --- | --- |
-| 400 / 413 / 415 | validation failed / body too large / not JSON |
-| 401 | missing or malformed `Authorization: Bearer` header |
-| 404 | unknown id, wrong token or deleted handoff: **deliberately indistinguishable** |
-| 410 | valid token, but the handoff expired (`expired`) or was revoked (`revoked`) |
-| 426 | https required |
-| 429 | rate limited; honour `Retry-After` |
-| 503 | server at its concurrency limit (`Retry-After: 1`) |
+| Status          | Meaning                                                                        |
+| --------------- | ------------------------------------------------------------------------------ |
+| 400 / 413 / 415 | validation failed / body too large / not JSON                                  |
+| 401             | missing or malformed `Authorization: Bearer` header                            |
+| 404             | unknown id, wrong token or deleted handoff: **deliberately indistinguishable** |
+| 410             | valid token, but the handoff expired (`expired`) or was revoked (`revoked`)    |
+| 426             | https required                                                                 |
+| 429             | rate limited; honour `Retry-After`                                             |
+| 503             | server at its concurrency limit (`Retry-After: 1`)                             |
 
 ## Access model and credential security
 
@@ -189,10 +189,10 @@ See [SECURITY.md](SECURITY.md).
 
 ## Retention and cleanup
 
-| Policy | Expires |
-| --- | --- |
-| `24h`, `30d` (default), `90d` | creation time + duration, stored in UTC |
-| `persistent` | never by time; kept until deleted, **or purged after `PERSISTENT_INACTIVITY_DAYS` (default 365) without access** |
+| Policy                        | Expires                                                                                                          |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `24h`, `30d` (default), `90d` | creation time + duration, stored in UTC                                                                          |
+| `persistent`                  | never by time; kept until deleted, **or purged after `PERSISTENT_INACTIVITY_DAYS` (default 365) without access** |
 
 The server validates the policy; clients cannot supply arbitrary expiry values. Persistent must be requested
 explicitly. Expired handoffs are refused at retrieval time (410) and physically removed by cleanup. Cleanup is one
@@ -207,14 +207,14 @@ multiplies each limit by N; swap `FixedWindowLimiter` for a shared store only if
 Fixed windows allow up to 2x bursts at window boundaries. There are no accounts, so creation (which has no
 credential yet) is limited per IP and globally rather than "per credential".
 
-| Layer | Default |
-| --- | --- |
-| All requests per IP (not `/health`) | 300 / min |
-| Create per IP / create globally | 10 / min, 600 / min |
-| Read, resume, delete **per handoff** (counted only after the token verifies) | 60, 30, 10 / min |
-| Invalid credentials per IP+handoff / per IP | 10, 50 per 15 min (keyed by IP, so an attacker elsewhere cannot lock out a legitimate user) |
-| Hosted MCP `/mcp`: requests per IP / creates per IP (claude.ai shares a few IPs) | 1200 / min, 60 / min |
-| In-flight requests | 200 (then 503) |
+| Layer                                                                            | Default                                                                                     |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| All requests per IP (not `/health`)                                              | 300 / min                                                                                   |
+| Create per IP / create globally                                                  | 10 / min, 600 / min                                                                         |
+| Read, resume, delete **per handoff** (counted only after the token verifies)     | 60, 30, 10 / min                                                                            |
+| Invalid credentials per IP+handoff / per IP                                      | 10, 50 per 15 min (keyed by IP, so an attacker elsewhere cannot lock out a legitimate user) |
+| Hosted MCP `/mcp`: requests per IP / creates per IP (claude.ai shares a few IPs) | 1200 / min, 60 / min                                                                        |
+| In-flight requests                                                               | 200 (then 503)                                                                              |
 
 Other controls: body cap, per-field length/array caps, memory budget with deterministic reduction (always reported,
 never silently claiming full history), connection/request timeouts, bounded limiter key tables, pooled DB access.
@@ -265,16 +265,16 @@ resumed session versus continuing the long one. The product does not measure tas
 
 ## Troubleshooting
 
-| Symptom | Check |
-| --- | --- |
-| Startup: `Invalid environment configuration` | The named variable; `TOKEN_PEPPER` ≥ 32 chars, not the placeholder in production |
-| Everything returns 426 | `REQUIRE_HTTPS` is on; set `TRUST_PROXY` so `X-Forwarded-Proto` is honoured |
-| 429 for all users | Proxy IP shared: set `TRUST_PROXY`; or raise `RATE_LIMIT_IP_PER_MIN` |
-| 401 on a correct token | Header must be `Authorization: Bearer sbt_...`; query-string tokens are ignored |
-| 404 on a handoff you created | Wrong token, deleted, or purged after expiry (404 and 410 depend on cleanup timing) |
-| `Cannot find module .../generated/prisma/client.js` | Run `npm run db:generate` |
+| Symptom                                                   | Check                                                                                                                                        |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Startup: `Invalid environment configuration`              | The named variable; `TOKEN_PEPPER` ≥ 32 chars, not the placeholder in production                                                             |
+| Everything returns 426                                    | `REQUIRE_HTTPS` is on; set `TRUST_PROXY` so `X-Forwarded-Proto` is honoured                                                                  |
+| 429 for all users                                         | Proxy IP shared: set `TRUST_PROXY`; or raise `RATE_LIMIT_IP_PER_MIN`                                                                         |
+| 401 on a correct token                                    | Header must be `Authorization: Bearer sbt_...`; query-string tokens are ignored                                                              |
+| 404 on a handoff you created                              | Wrong token, deleted, or purged after expiry (404 and 410 depend on cleanup timing)                                                          |
+| `Cannot find module .../generated/prisma/client.js`       | Run `npm run db:generate`                                                                                                                    |
 | Connector says Connected but Claude never calls the tools | Enable the connector in that chat's tools menu; check server logs for `POST /mcp`; remove and re-add it (see docs/integrations/claude-ai.md) |
-| MCP tools missing in Claude Code | `claude mcp list`, run `/mcp`, confirm the absolute path to `dist/index.js` and that `npm run build` ran |
+| MCP tools missing in Claude Code                          | `claude mcp list`, run `/mcp`, confirm the absolute path to `dist/index.js` and that `npm run build` ran                                     |
 
 ## Known limitations
 
@@ -288,3 +288,4 @@ output unless `SESSION_BRIDGE_REVEAL_TOKEN=false` · local token store is plaint
 MIT (see `LICENSE`): permissive, short, and trivially compatible with commercial use. Update the copyright holder
 before publishing. See [CONTRIBUTING.md](CONTRIBUTING.md). Third-party repositories evaluated for reuse (none
 integrated): [docs/repo-evaluation.md](docs/repo-evaluation.md).
+# session-bridge
