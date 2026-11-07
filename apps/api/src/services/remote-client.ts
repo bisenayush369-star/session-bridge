@@ -4,7 +4,9 @@ import { runAuthed } from '../middleware/authed.js';
 import type { RequestGuard } from '../middleware/guard.js';
 import type { CreateInput, HandoffService } from './handoff-service.js';
 
-export type CreateParser = (body: unknown) => { ok: true; data: CreateInput } | { ok: false; message: string };
+export type CreateParser = (
+  body: unknown,
+) => { ok: true; data: CreateInput } | { ok: false; message: string };
 
 const isFormat = (v: unknown): v is 'text' | 'json' | 'both' => v === 'text' || v === 'json' || v === 'both';
 
@@ -38,6 +40,7 @@ export function createInProcessClient(opts: {
           hooks,
         ),
       ),
-    deleteHandoff: (id, token) => runAuthed(guard, ip, id, token, 'delete', (t, hooks) => service.remove(id, t, hooks)),
+    deleteHandoff: (id, token) =>
+      runAuthed(guard, ip, id, token, 'delete', (t, hooks) => service.remove(id, t, hooks)),
   };
 }

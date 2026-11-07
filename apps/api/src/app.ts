@@ -53,6 +53,14 @@ export function buildApp(deps: AppDeps): FastifyInstance {
     deps.guard.checkIp(request.ip, request.url.startsWith('/mcp') ? 'mcp' : 'api');
   });
 
+  app.addHook('preHandler', async (request) => {
+    if (request.method === 'GET' || request.method === 'DELETE') return;
+    const contentType = request.headers['content-type'];
+    if (contentType && !contentType.toLowerCase().includes('application/json')) {
+      throw Object.assign(new Error('Content-Type must be application/json.'), { statusCode: 415 });
+    }
+  });
+
   app.addHook('onSend', async (_request, reply, payload) => {
     reply.header('Cache-Control', 'no-store');
     reply.header('X-Content-Type-Options', 'nosniff');
@@ -65,10 +73,17 @@ export function buildApp(deps: AppDeps): FastifyInstance {
     if (err instanceof AppError) {
       if (err.extra.retryAfterSeconds) reply.header('Retry-After', String(err.extra.retryAfterSeconds));
       return reply.code(err.status).send({
-        error: { code: err.code, message: err.message, ...(err.extra.details ? { details: err.extra.details } : {}) },
+        error: {
+          code: err.code,
+          message: err.message,
+          ...(err.extra.details ? { details: err.extra.details } : {}),
+        },
       });
     }
-    const status = typeof err.statusCode === 'number' && err.statusCode >= 400 && err.statusCode < 500 ? err.statusCode : 500;
+    const status =
+      typeof err.statusCode === 'number' && err.statusCode >= 400 && err.statusCode < 500
+        ? err.statusCode
+        : 500;
     if (status === 500) {
       // Log only the error type: library messages (e.g. ORM validation errors) can echo request data.
       request.log.error({ errType: err.name }, 'unhandled error');

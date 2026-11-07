@@ -3,7 +3,12 @@ import { RequestGuard } from '../apps/api/src/middleware/guard.js';
 import type { CreateInput } from '../apps/api/src/services/handoff-service.js';
 import { createInProcessClient, type CreateParser } from '../apps/api/src/services/remote-client.js';
 import { disabledTokenStore } from '../packages/mcp-server/src/token-store.js';
-import { createHandoffTool, deleteHandoffTool, resumeHandoffTool, type ToolDeps } from '../packages/mcp-server/src/tools.js';
+import {
+  createHandoffTool,
+  deleteHandoffTool,
+  resumeHandoffTool,
+  type ToolDeps,
+} from '../packages/mcp-server/src/tools.js';
 import { makeService, sampleInput } from './helpers.js';
 
 const parseCreate: CreateParser = (body) =>
@@ -28,7 +33,11 @@ const rate = {
 function setup(ip = '34.0.0.1') {
   const { service, clock } = makeService();
   const guard = new RequestGuard(rate, clock);
-  const deps: ToolDeps = { client: createInProcessClient({ service, guard, ip, parseCreate }), store: disabledTokenStore, revealToken: true };
+  const deps: ToolDeps = {
+    client: createInProcessClient({ service, guard, ip, parseCreate }),
+    store: disabledTokenStore,
+    revealToken: true,
+  };
   return { deps, service, guard };
 }
 const first = (r: { content: Array<{ text: string }> }): string => r.content[0]?.text ?? '';
@@ -51,7 +60,9 @@ describe('hosted MCP path (tools -> in-process client -> service), as claude.ai 
     expect(first(resumed)).toContain('Fix authentication');
     expect(first(resumed)).toContain('Inspect the auth callback');
 
-    expect((await deleteHandoffTool(deps, { handoff_id: id, retrieval_token: token })).isError).toBeUndefined();
+    expect(
+      (await deleteHandoffTool(deps, { handoff_id: id, retrieval_token: token })).isError,
+    ).toBeUndefined();
     const after = await resumeHandoffTool(deps, { handoff_id: id, retrieval_token: token });
     expect(after.isError).toBe(true);
     expect(first(after)).toContain('not_found');
@@ -80,7 +91,8 @@ describe('hosted MCP path (tools -> in-process client -> service), as claude.ai 
 
   it('applies the hosted-channel creation limit and reports validation errors as tool errors', async () => {
     const { deps } = setup();
-    for (let i = 0; i < 3; i += 1) expect((await createHandoffTool(deps, sampleInput() as never)).isError).toBeUndefined();
+    for (let i = 0; i < 3; i += 1)
+      expect((await createHandoffTool(deps, sampleInput() as never)).isError).toBeUndefined();
     const limited = await createHandoffTool(deps, sampleInput() as never);
     expect(limited.isError).toBe(true);
     expect(first(limited)).toContain('rate_limited');

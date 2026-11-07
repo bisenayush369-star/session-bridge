@@ -25,7 +25,9 @@ describe('resume package', () => {
   });
 
   it('omits empty sections and never invents archive data', () => {
-    const r = buildResume(normalizeMemory({ project: { name: 'P' }, objective: 'O', next_action: 'N' }), { handoffId: ID });
+    const r = buildResume(normalizeMemory({ project: { name: 'P' }, objective: 'O', next_action: 'N' }), {
+      handoffId: ID,
+    });
     expect(r.text).not.toContain('## Completed');
     expect(r.archive).toEqual({ available: false, reference: null });
     expect(r.truncated).toBe(false);
@@ -44,7 +46,9 @@ describe('resume package', () => {
   });
 
   it('flags over-budget output instead of pretending it fits', () => {
-    const memory = normalizeMemory(sampleInput({ objective: 'o'.repeat(1_900), next_action: 'n'.repeat(1_900) }));
+    const memory = normalizeMemory(
+      sampleInput({ objective: 'o'.repeat(1_900), next_action: 'n'.repeat(1_900) }),
+    );
     const r = buildResume(memory, { handoffId: ID, maxTokens: 200 });
     expect(r.over_budget).toBe(true);
   });

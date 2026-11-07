@@ -73,7 +73,7 @@ When I send "/resume <ID> <TOKEN>", call resume_handoff with them. When I paste 
    that Claude loses the early details.
 2. Claude replies with one code block. Read it, remove anything private, and correct anything wrong. It is only as good as
    Claude's memory of the chat.
-3. Open a new chat, paste the whole block and add: *"Continue from this handoff."* Claude resumes at NEXT ACTION without
+3. Open a new chat, paste the whole block and add: _"Continue from this handoff."_ Claude resumes at NEXT ACTION without
    redoing finished work or repeating failed attempts.
 
 With the optional Session Bridge connector enabled, step 2 returns a short ID and token instead, and step 3 is

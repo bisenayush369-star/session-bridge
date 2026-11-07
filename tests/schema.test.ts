@@ -29,7 +29,9 @@ describe('createHandoffSchema', () => {
     expect(createHandoffSchema.safeParse({ ...example, retention: 'forever' }).success).toBe(false);
     expect(createHandoffSchema.safeParse({ ...example, objective: '   ' }).success).toBe(false);
     expect(createHandoffSchema.safeParse({ ...example, objective: 'x'.repeat(2_001) }).success).toBe(false);
-    expect(createHandoffSchema.safeParse({ ...example, decisions: Array(201).fill('d') }).success).toBe(false);
+    expect(createHandoffSchema.safeParse({ ...example, decisions: Array(201).fill('d') }).success).toBe(
+      false,
+    );
   });
 
   it('accepts string and object forms for attempts and files', () => {

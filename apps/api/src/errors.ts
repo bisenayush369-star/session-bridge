@@ -17,11 +17,20 @@ export class AppError extends Error {
 }
 
 export const errors = {
-  validation: (message: string, details?: unknown) => new AppError(400, 'validation_failed', message, { details }),
+  validation: (message: string, details?: unknown) =>
+    new AppError(400, 'validation_failed', message, { details }),
   unauthorized: () =>
-    new AppError(401, 'unauthorized', 'A valid "Authorization: Bearer <retrieval_token>" header is required.'),
+    new AppError(
+      401,
+      'unauthorized',
+      'A valid "Authorization: Bearer <retrieval_token>" header is required.',
+    ),
   mcpUnauthorized: () =>
-    new AppError(401, 'unauthorized', 'This endpoint needs its access key (header X-Session-Bridge-Key, or Authorization: Bearer <key>).'),
+    new AppError(
+      401,
+      'unauthorized',
+      'This endpoint needs its access key (header X-Session-Bridge-Key, or Authorization: Bearer <key>).',
+    ),
   /** Used for unknown id, wrong token and deleted handoffs alike, so existence is never revealed. */
   notFound: () => new AppError(404, 'not_found', 'Handoff not found or access denied.'),
   gone: (reason: 'expired' | 'revoked') =>

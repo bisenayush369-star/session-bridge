@@ -14,7 +14,12 @@ export class InMemoryHandoffRepository implements HandoffRepository {
 
   async create(handoff: NewHandoff): Promise<void> {
     if (this.rows.has(handoff.publicId)) throw new DuplicateIdError();
-    this.rows.set(handoff.publicId, { ...structuredClone(handoff), lastAccessedAt: null, revokedAt: null, deletedAt: null });
+    this.rows.set(handoff.publicId, {
+      ...structuredClone(handoff),
+      lastAccessedAt: null,
+      revokedAt: null,
+      deletedAt: null,
+    });
   }
 
   async findByPublicId(publicId: string): Promise<HandoffRecord | null> {

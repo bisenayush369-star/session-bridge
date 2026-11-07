@@ -3,7 +3,14 @@ import { NEWSESSION_INSTRUCTIONS, resumeInstructions } from '../packages/mcp-ser
 
 describe('MCP prompts for claude.ai', () => {
   it('newsession prompt forbids faking saves and secrets and asks for the token once', () => {
-    for (const needle of ['create_handoff', 'Never pretend to save', 'assumptions', 'next_action', 'Never include secrets', 'retrieval token once']) {
+    for (const needle of [
+      'create_handoff',
+      'Never pretend to save',
+      'assumptions',
+      'next_action',
+      'Never include secrets',
+      'retrieval token once',
+    ]) {
       expect(NEWSESSION_INSTRUCTIONS).toContain(needle);
     }
   });

@@ -55,11 +55,21 @@ describe.skipIf(!url)('PrismaHandoffRepository (PostgreSQL)', () => {
 
   it('purges expired rows, old tombstones and inactive persistent rows idempotently', async () => {
     await repo.create(row('hs_DBTEST0000000005', { expiresAt: new Date(now.getTime() - 1_000) }));
-    await repo.create(row('hs_DBTEST0000000006', { retention: 'persistent', expiresAt: null, createdAt: new Date(now.getTime() - 400 * DAY) }));
+    await repo.create(
+      row('hs_DBTEST0000000006', {
+        retention: 'persistent',
+        expiresAt: null,
+        createdAt: new Date(now.getTime() - 400 * DAY),
+      }),
+    );
     await repo.create(row('hs_DBTEST0000000007'));
     await repo.markDeleted('hs_DBTEST0000000007', new Date(now.getTime() - 8 * DAY));
     await repo.create(row('hs_DBTEST0000000008'));
-    const input = { now, tombstoneBefore: new Date(now.getTime() - 7 * DAY), inactiveBefore: new Date(now.getTime() - 365 * DAY) };
+    const input = {
+      now,
+      tombstoneBefore: new Date(now.getTime() - 7 * DAY),
+      inactiveBefore: new Date(now.getTime() - 365 * DAY),
+    };
     expect(await repo.purge(input)).toEqual({ expired: 1, tombstones: 1, inactivePersistent: 1 });
     expect(await repo.purge(input)).toEqual({ expired: 0, tombstones: 0, inactivePersistent: 0 });
     expect(await repo.findByPublicId('hs_DBTEST0000000008')).not.toBeNull();

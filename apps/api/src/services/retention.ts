@@ -9,10 +9,16 @@ export function isRetention(value: unknown): value is Retention {
 }
 
 /** Server-side validation: client-supplied expiry values are never trusted; only the named policies exist. */
-export function resolveRetention(requested: unknown, defaultPolicy: Retention, allowPersistent: boolean): Retention {
+export function resolveRetention(
+  requested: unknown,
+  defaultPolicy: Retention,
+  allowPersistent: boolean,
+): Retention {
   const policy = requested === undefined ? defaultPolicy : requested;
-  if (!isRetention(policy)) throw errors.validation(`retention must be one of: ${RETENTION_VALUES.join(', ')}.`);
-  if (policy === 'persistent' && !allowPersistent) throw errors.validation('Persistent retention is disabled on this server.');
+  if (!isRetention(policy))
+    throw errors.validation(`retention must be one of: ${RETENTION_VALUES.join(', ')}.`);
+  if (policy === 'persistent' && !allowPersistent)
+    throw errors.validation('Persistent retention is disabled on this server.');
   return policy;
 }
 

@@ -3,7 +3,13 @@ import { HANDOFF_ID_PATTERN, TOKEN_PATTERN } from '@session-bridge/shared';
 import { createHandoffSchema } from '@session-bridge/shared/schema';
 import { z } from 'zod';
 import { NEWSESSION_INSTRUCTIONS, resumeInstructions } from './prompts.js';
-import { createHandoffTool, deleteHandoffTool, resumeHandoffTool, searchArchiveTool, type ToolDeps } from './tools.js';
+import {
+  createHandoffTool,
+  deleteHandoffTool,
+  resumeHandoffTool,
+  searchArchiveTool,
+  type ToolDeps,
+} from './tools.js';
 
 const handoffId = z.string().regex(HANDOFF_ID_PATTERN, 'must look like hs_XXXXXXXXXXXXXXXX');
 const tokenString = z.string().regex(TOKEN_PATTERN);
@@ -46,7 +52,8 @@ export function buildServer(deps: ToolDeps): McpServer {
     'delete_handoff',
     {
       title: 'Delete handoff',
-      description: 'Permanently delete a saved handoff (its memory is scrubbed immediately). Needs the retrieval token.',
+      description:
+        'Permanently delete a saved handoff (its memory is scrubbed immediately). Needs the retrieval token.',
       inputSchema: { handoff_id: handoffId, retrieval_token: tokenString.optional() },
     },
     async (args) => deleteHandoffTool(deps, args),
@@ -68,7 +75,11 @@ export function buildServer(deps: ToolDeps): McpServer {
       title: 'Save this session (/newsession)',
       description: 'Save this conversation as a Session Bridge handoff to continue in a fresh chat.',
     },
-    () => ({ messages: [{ role: 'user' as const, content: { type: 'text' as const, text: NEWSESSION_INSTRUCTIONS } }] }),
+    () => ({
+      messages: [
+        { role: 'user' as const, content: { type: 'text' as const, text: NEWSESSION_INSTRUCTIONS } },
+      ],
+    }),
   );
 
   server.registerPrompt(
@@ -79,7 +90,12 @@ export function buildServer(deps: ToolDeps): McpServer {
       argsSchema: { handoff_id: handoffId, retrieval_token: tokenString },
     },
     ({ handoff_id, retrieval_token }: { handoff_id: string; retrieval_token: string }) => ({
-      messages: [{ role: 'user' as const, content: { type: 'text' as const, text: resumeInstructions(handoff_id, retrieval_token) } }],
+      messages: [
+        {
+          role: 'user' as const,
+          content: { type: 'text' as const, text: resumeInstructions(handoff_id, retrieval_token) },
+        },
+      ],
     }),
   );
 

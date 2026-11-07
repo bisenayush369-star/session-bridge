@@ -54,11 +54,11 @@ Enable it per conversation: in the chat click **+** (lower left) -> **Connectors
 
 ## 5. Use it
 
-- **Save:** in the long chat say *"Save this conversation to Session Bridge."* Claude calls `create_handoff` and shows the handoff
+- **Save:** in the long chat say _"Save this conversation to Session Bridge."_ Claude calls `create_handoff` and shows the handoff
   ID, the expiry and the retrieval token once. Store the token in a password manager.
-- **Resume:** in a new chat, enable the connector and say *"Resume Session Bridge handoff hs_XXXXXXXXXXXXXXXX with token sbt_..."*.
+- **Resume:** in a new chat, enable the connector and say _"Resume Session Bridge handoff hs_XXXXXXXXXXXXXXXX with token sbt\_..."_.
   The token is always required on the hosted path (there is no local token store).
-- **Delete:** *"Delete Session Bridge handoff hs_... (token sbt_...)."*
+- **Delete:** _"Delete Session Bridge handoff hs\_... (token sbt\_...)."_
 - The connector also offers `newsession` and `resume_session` prompts; I could not verify whether your UI lists MCP prompts, so
   plain wording is the reliable way. The `/newsession` **skill** is a Claude Code feature.
 

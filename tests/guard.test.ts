@@ -42,7 +42,9 @@ describe('RequestGuard', () => {
   it('counts authenticated operations per handoff, not per IP', () => {
     const { guard } = make();
     for (let i = 0; i < 5; i += 1) guard.checkAuthenticated('shared-ip', 'hs_AAAAAAAAAAAAAAAA', 'read');
-    expect(thrown(() => guard.checkAuthenticated('shared-ip', 'hs_AAAAAAAAAAAAAAAA', 'read')).status).toBe(429);
+    expect(thrown(() => guard.checkAuthenticated('shared-ip', 'hs_AAAAAAAAAAAAAAAA', 'read')).status).toBe(
+      429,
+    );
     guard.checkAuthenticated('shared-ip', 'hs_BBBBBBBBBBBBBBBB', 'read');
     guard.checkAuthenticated('shared-ip', 'hs_AAAAAAAAAAAAAAAA', 'resume');
   });

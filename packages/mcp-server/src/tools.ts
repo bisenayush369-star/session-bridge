@@ -15,7 +15,10 @@ export interface ToolResult {
   isError?: boolean;
 }
 
-const text = (t: string, isError = false): ToolResult => ({ content: [{ type: 'text', text: t }], ...(isError ? { isError } : {}) });
+const text = (t: string, isError = false): ToolResult => ({
+  content: [{ type: 'text', text: t }],
+  ...(isError ? { isError } : {}),
+});
 
 function describeError(e: unknown): ToolResult {
   if (e instanceof SessionBridgeApiError) {
@@ -23,7 +26,12 @@ function describeError(e: unknown): ToolResult {
   }
   // The hosted endpoint calls the service in-process; its AppError carries the same status/code/message.
   const err = e as { name?: unknown; status?: unknown; code?: unknown; message?: unknown } | null;
-  if (err?.name === 'AppError' && typeof err.status === 'number' && typeof err.code === 'string' && typeof err.message === 'string') {
+  if (
+    err?.name === 'AppError' &&
+    typeof err.status === 'number' &&
+    typeof err.code === 'string' &&
+    typeof err.message === 'string'
+  ) {
     return text(`Session Bridge API error (${err.status}, ${err.code}): ${err.message}`, true);
   }
   return text('Session Bridge request failed unexpectedly.', true);
@@ -47,7 +55,8 @@ export async function createHandoffTool(deps: ToolDeps, args: Record<string, unk
     ];
     const warnings = [...res.warnings];
     if (count > 0) warnings.push(`${count} secret-like value(s) were redacted client-side before sending.`);
-    if (res.truncated) warnings.push('The stored memory was reduced to fit the size budget; see warnings above.');
+    if (res.truncated)
+      warnings.push('The stored memory was reduced to fit the size budget; see warnings above.');
     if (warnings.length) lines.push('Warnings:', ...warnings.map((w) => `- ${w}`));
     return text(lines.join('\n'));
   } catch (e) {

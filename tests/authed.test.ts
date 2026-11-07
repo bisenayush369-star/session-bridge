@@ -28,13 +28,15 @@ const ok = async () => 'ok';
 describe('runAuthed', () => {
   it('answers malformed ids with 404 and never counts them as credential failures', async () => {
     const { guard } = make();
-    for (let i = 0; i < 10; i += 1) expect((await rejection(runAuthed(guard, 'ip', 'nope', TOKEN, 'read', ok))).status).toBe(404);
+    for (let i = 0; i < 10; i += 1)
+      expect((await rejection(runAuthed(guard, 'ip', 'nope', TOKEN, 'read', ok))).status).toBe(404);
     expect(await runAuthed(guard, 'ip', ID, TOKEN, 'read', ok)).toBe('ok');
   });
 
   it('answers a missing token with 401, counts it, and blocks that IP after repeated failures', async () => {
     const { guard } = make();
-    for (let i = 0; i < 3; i += 1) expect((await rejection(runAuthed(guard, 'evil', ID, null, 'read', ok))).status).toBe(401);
+    for (let i = 0; i < 3; i += 1)
+      expect((await rejection(runAuthed(guard, 'evil', ID, null, 'read', ok))).status).toBe(401);
     expect((await rejection(runAuthed(guard, 'evil', ID, null, 'read', ok))).status).toBe(429);
     expect(await runAuthed(guard, 'other-ip', ID, TOKEN, 'read', ok)).toBe('ok');
   });
@@ -42,11 +44,23 @@ describe('runAuthed', () => {
   it('counts only 404s from the operation as failures', async () => {
     const { guard } = make();
     for (let i = 0; i < 5; i += 1) {
-      const e = await rejection(runAuthed(guard, 'ip', ID, TOKEN, 'read', async () => { throw errors.gone('expired'); }));
+      const e = await rejection(
+        runAuthed(guard, 'ip', ID, TOKEN, 'read', async () => {
+          throw errors.gone('expired');
+        }),
+      );
       expect(e.status).toBe(410);
     }
     for (let i = 0; i < 3; i += 1) {
-      expect((await rejection(runAuthed(guard, 'ip', ID, TOKEN, 'read', async () => { throw errors.notFound(); }))).status).toBe(404);
+      expect(
+        (
+          await rejection(
+            runAuthed(guard, 'ip', ID, TOKEN, 'read', async () => {
+              throw errors.notFound();
+            }),
+          )
+        ).status,
+      ).toBe(404);
     }
     expect((await rejection(runAuthed(guard, 'ip', ID, TOKEN, 'read', ok))).status).toBe(429);
   });

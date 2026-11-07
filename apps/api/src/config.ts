@@ -2,7 +2,8 @@ import { z } from 'zod';
 import type { Retention } from '@session-bridge/shared';
 
 const bool = z.enum(['true', 'false', '1', '0']).transform((v) => v === 'true' || v === '1');
-const int = (def: number, min = 0, max = 2_147_483_647) => z.coerce.number().int().min(min).max(max).default(def);
+const int = (def: number, min = 0, max = 2_147_483_647) =>
+  z.coerce.number().int().min(min).max(max).default(def);
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -61,7 +62,7 @@ export interface Config {
   tokenPepper: string;
   /** Optional shared key required on POST /mcp (claude.ai connector request header). */
   mcpAccessToken: string | undefined;
-  trustProxy: boolean | number | string;
+  trustProxy: boolean | string | string[];
   requireHttps: boolean;
   maxBodyBytes: number;
   memoryBudgetBytes: number;
@@ -75,11 +76,10 @@ export interface Config {
   rate: RateConfig;
 }
 
-function parseTrustProxy(value: string): boolean | number | string {
+function parseTrustProxy(value: string): boolean | string {
   if (value === 'true') return true;
   if (value === 'false' || value === '') return false;
-  if (/^\d+$/.test(value)) return Number(value);
-  return value; // comma-separated IPs / CIDRs
+  return value; // hop count, comma-separated IPs / CIDRs, or CIDR list
 }
 
 /** Validates the environment once at startup. Error text names variables, never their values. */
@@ -91,7 +91,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   }
   const e = parsed.data;
   const production = e.NODE_ENV === 'production';
-  if (production && !e.DATABASE_URL) throw new Error('Invalid environment configuration: DATABASE_URL is required in production');
+  if (production && !e.DATABASE_URL)
+    throw new Error('Invalid environment configuration: DATABASE_URL is required in production');
   if (production && /CHANGE_?ME/i.test(e.TOKEN_PEPPER)) {
     throw new Error('Invalid environment configuration: TOKEN_PEPPER still has the placeholder value');
   }

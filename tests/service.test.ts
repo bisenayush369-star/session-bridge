@@ -38,13 +38,23 @@ describe('HandoffService.create', () => {
   });
 
   it('rejects client-chosen expiry values and disabled persistent retention', async () => {
-    expect((await rejection(makeService().service.create(sampleInput({ retention: 'forever' })))).status).toBe(400);
-    expect((await rejection(makeService({ allowPersistent: false }).service.create(sampleInput({ retention: 'persistent' })))).status).toBe(400);
+    expect(
+      (await rejection(makeService().service.create(sampleInput({ retention: 'forever' })))).status,
+    ).toBe(400);
+    expect(
+      (
+        await rejection(
+          makeService({ allowPersistent: false }).service.create(sampleInput({ retention: 'persistent' })),
+        )
+      ).status,
+    ).toBe(400);
   });
 
   it('redacts secrets before storing and says so', async () => {
     const { service, repo } = makeService();
-    const res = await service.create(sampleInput({ next_action: 'Use sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123456789 to call the API' }));
+    const res = await service.create(
+      sampleInput({ next_action: 'Use sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123456789 to call the API' }),
+    );
     expect(JSON.stringify(repo.rows.get(res.handoff_id)?.memory)).not.toContain('sk-ant');
     expect(res.warnings.join(' ')).toContain('redacted');
   });
@@ -72,7 +82,9 @@ describe('HandoffService.create', () => {
 
   it('handles 50 concurrent creations with unique ids and tokens, all retrievable', async () => {
     const { service } = makeService();
-    const results = await Promise.all(Array.from({ length: 50 }, (_, i) => service.create(sampleInput({ objective: `Task ${i}` }))));
+    const results = await Promise.all(
+      Array.from({ length: 50 }, (_, i) => service.create(sampleInput({ objective: `Task ${i}` }))),
+    );
     expect(new Set(results.map((r) => r.handoff_id)).size).toBe(50);
     expect(new Set(results.map((r) => r.retrieval_token)).size).toBe(50);
     const fetched = await Promise.all(results.map((r) => service.get(r.handoff_id, r.retrieval_token)));
@@ -115,7 +127,9 @@ describe('HandoffService access control', () => {
 
   it('refuses expired handoffs (410) and removes them on cleanup (then 404)', async () => {
     const { service, clock } = makeService();
-    const { handoff_id: id, retrieval_token: token } = await service.create(sampleInput({ retention: '24h' }));
+    const { handoff_id: id, retrieval_token: token } = await service.create(
+      sampleInput({ retention: '24h' }),
+    );
     clock.advance(23 * HOUR);
     await service.get(id, token);
     clock.advance(HOUR);

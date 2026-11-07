@@ -129,7 +129,9 @@ export class MemoryTooLargeError extends Error {
     public readonly budget: number,
     public readonly size: number,
   ) {
-    super(`Memory cannot be reduced below ${size} bytes without dropping critical fields (budget ${budget}).`);
+    super(
+      `Memory cannot be reduced below ${size} bytes without dropping critical fields (budget ${budget}).`,
+    );
     this.name = 'MemoryTooLargeError';
   }
 }

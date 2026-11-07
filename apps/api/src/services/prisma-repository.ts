@@ -68,7 +68,10 @@ export class PrismaHandoffRepository implements HandoffRepository {
   }
 
   async markRevoked(publicId: string, at: Date): Promise<boolean> {
-    const r = await this.db.handoff.updateMany({ where: { publicId, revokedAt: null }, data: { revokedAt: at } });
+    const r = await this.db.handoff.updateMany({
+      where: { publicId, revokedAt: null },
+      data: { revokedAt: at },
+    });
     if (r.count > 0) return true;
     return (await this.db.handoff.count({ where: { publicId } })) > 0;
   }

@@ -36,12 +36,12 @@ projects). For a shared `.mcp.json`, reference an environment variable instead o
 }
 ```
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `SESSION_BRIDGE_API_URL` | `http://localhost:3000` | API base URL. Must be https unless host is localhost |
-| `SESSION_BRIDGE_TOKEN_STORE` | `~/.session-bridge/tokens.json` | Local file (0600) holding tokens of handoffs created here; `off` disables |
-| `SESSION_BRIDGE_REVEAL_TOKEN` | `true` | `false` keeps the token out of the conversation (requires the token store) |
-| `SESSION_BRIDGE_TIMEOUT_MS` | `15000` | Request timeout |
+| Variable                      | Default                         | Purpose                                                                    |
+| ----------------------------- | ------------------------------- | -------------------------------------------------------------------------- |
+| `SESSION_BRIDGE_API_URL`      | `http://localhost:3000`         | API base URL. Must be https unless host is localhost                       |
+| `SESSION_BRIDGE_TOKEN_STORE`  | `~/.session-bridge/tokens.json` | Local file (0600) holding tokens of handoffs created here; `off` disables  |
+| `SESSION_BRIDGE_REVEAL_TOKEN` | `true`                          | `false` keeps the token out of the conversation (requires the token store) |
+| `SESSION_BRIDGE_TIMEOUT_MS`   | `15000`                         | Request timeout                                                            |
 
 The server needs no API key of its own: handoffs are protected by per-handoff tokens, so nothing private is embedded
 in the skill or the MCP config.

@@ -9,7 +9,13 @@ import { createInProcessClient, type CreateParser } from '../services/remote-cli
 const parseCreate: CreateParser = (body) => {
   const r = createHandoffSchema.safeParse(body);
   if (r.success) return { ok: true, data: r.data };
-  return { ok: false, message: r.error.issues.slice(0, 5).map((i) => `${i.path.join('.')}: ${i.message}`).join('; ') };
+  return {
+    ok: false,
+    message: r.error.issues
+      .slice(0, 5)
+      .map((i) => `${i.path.join('.')}: ${i.message}`)
+      .join('; '),
+  };
 };
 
 /**
@@ -20,9 +26,17 @@ const parseCreate: CreateParser = (body) => {
 export function registerMcpRoute(app: FastifyInstance, deps: AppDeps): void {
   app.post('/mcp', async (req, reply) => {
     assertMcpAccess(deps.guard, req.ip, deps.config.mcpAccessToken, req.headers);
-    const client = createInProcessClient({ service: deps.service, guard: deps.guard, ip: req.ip, parseCreate });
+    const client = createInProcessClient({
+      service: deps.service,
+      guard: deps.guard,
+      ip: req.ip,
+      parseCreate,
+    });
     const server = buildServer({ client, store: disabledTokenStore, revealToken: true });
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+      enableJsonResponse: true,
+    });
     reply.hijack(); // the transport writes the response itself
     reply.raw.setHeader('Cache-Control', 'no-store');
     reply.raw.on('close', () => {
@@ -37,13 +51,25 @@ export function registerMcpRoute(app: FastifyInstance, deps: AppDeps): void {
       if (!reply.raw.headersSent) {
         reply.raw.statusCode = 500;
         reply.raw.setHeader('content-type', 'application/json');
-        reply.raw.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: 'Internal server error' }, id: null }));
+        reply.raw.end(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            error: { code: -32603, message: 'Internal server error' },
+            id: null,
+          }),
+        );
       }
     }
   });
 
-  const methodNotAllowed = (_req: unknown, reply: { code: (n: number) => { header: (k: string, v: string) => { send: (b: unknown) => unknown } } }) =>
-    reply.code(405).header('Allow', 'POST').send({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
+  const methodNotAllowed = (
+    _req: unknown,
+    reply: { code: (n: number) => { header: (k: string, v: string) => { send: (b: unknown) => unknown } } },
+  ) =>
+    reply
+      .code(405)
+      .header('Allow', 'POST')
+      .send({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
   app.get('/mcp', methodNotAllowed);
   app.delete('/mcp', methodNotAllowed);
 }

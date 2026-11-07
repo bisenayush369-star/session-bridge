@@ -9,7 +9,9 @@ const baseUrl = process.env.SESSION_BRIDGE_API_URL ?? 'http://localhost:3000';
 const store = tokenStoreFromEnv(process.env);
 const revealToken = process.env.SESSION_BRIDGE_REVEAL_TOKEN !== 'false';
 if (!revealToken && !store.enabled) {
-  console.error('SESSION_BRIDGE_REVEAL_TOKEN=false requires the local token store (do not set SESSION_BRIDGE_TOKEN_STORE=off).');
+  console.error(
+    'SESSION_BRIDGE_REVEAL_TOKEN=false requires the local token store (do not set SESSION_BRIDGE_TOKEN_STORE=off).',
+  );
   process.exit(1);
 }
 

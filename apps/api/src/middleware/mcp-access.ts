@@ -10,7 +10,12 @@ type Headers = Record<string, string | string[] | undefined>;
  * handoff is still protected by its own token). When set, the caller must send it as `X-Session-Bridge-Key: <key>`
  * or `Authorization: Bearer <key>`. Wrong keys count as failures and are throttled per client IP.
  */
-export function assertMcpAccess(guard: RequestGuard, ip: string, expected: string | undefined, headers: Headers): void {
+export function assertMcpAccess(
+  guard: RequestGuard,
+  ip: string,
+  expected: string | undefined,
+  headers: Headers,
+): void {
   if (!expected) return;
   guard.assertNotBlocked(ip, 'mcp-access');
   const raw = headers['x-session-bridge-key'] ?? headers.authorization;

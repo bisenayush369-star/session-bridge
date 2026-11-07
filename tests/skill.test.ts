@@ -26,7 +26,17 @@ describe('newsession SKILL.md', () => {
   });
 
   it('drives the MCP tools, forbids faking results and covers save and resume', () => {
-    for (const needle of ['create_handoff', 'resume_handoff', 'search_archive', 'never fake', 'Do not simulate', 'Save workflow', 'Resume workflow', 'failed_attempts', 'next_action']) {
+    for (const needle of [
+      'create_handoff',
+      'resume_handoff',
+      'search_archive',
+      'never fake',
+      'Do not simulate',
+      'Save workflow',
+      'Resume workflow',
+      'failed_attempts',
+      'next_action',
+    ]) {
       expect(raw).toContain(needle);
     }
   });

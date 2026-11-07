@@ -2,7 +2,12 @@ import { mkdtempSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { assertSafeBaseUrl, SessionBridgeApiError, type ApiClient, type CreateResponse } from '../packages/mcp-server/src/client.js';
+import {
+  assertSafeBaseUrl,
+  SessionBridgeApiError,
+  type ApiClient,
+  type CreateResponse,
+} from '../packages/mcp-server/src/client.js';
 import { disabledTokenStore, FileTokenStore } from '../packages/mcp-server/src/token-store.js';
 import {
   createHandoffTool,
@@ -20,7 +25,9 @@ function setup(over: Partial<ApiClient> = {}, revealToken = true, enabled = true
   const sent: unknown[] = [];
   const dir = mkdtempSync(join(tmpdir(), 'sb-mcp-'));
   const path = join(dir, 'nested', 'tokens.json');
-  const store = enabled ? new FileTokenStore(path, () => Date.parse('2026-11-03T00:00:00Z')) : disabledTokenStore;
+  const store = enabled
+    ? new FileTokenStore(path, () => Date.parse('2026-11-03T00:00:00Z'))
+    : disabledTokenStore;
   const created: CreateResponse = {
     handoff_id: ID,
     retrieval_token: TOKEN,
@@ -38,7 +45,15 @@ function setup(over: Partial<ApiClient> = {}, revealToken = true, enabled = true
     },
     resume: async (id, token, body) => {
       sent.push({ id, token, body });
-      return { handoff_id: id, text: '# Session handoff\nNext action: go', approx_tokens: 9, token_estimate: 'approximate', truncated: false, omitted: {}, archive: { available: false, reference: null } };
+      return {
+        handoff_id: id,
+        text: '# Session handoff\nNext action: go',
+        approx_tokens: 9,
+        token_estimate: 'approximate',
+        truncated: false,
+        omitted: {},
+        archive: { available: false, reference: null },
+      };
     },
     deleteHandoff: async (id) => ({ handoff_id: id, status: 'deleted' }),
     ...over,
@@ -50,7 +65,10 @@ function setup(over: Partial<ApiClient> = {}, revealToken = true, enabled = true
 describe('create_handoff', () => {
   it('redacts before sending, saves the token locally with 0600 permissions and reports success', async () => {
     const { deps, sent, store, path } = setup();
-    const r = await createHandoffTool(deps, sampleInput({ next_action: 'use key sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123456789' }) as never);
+    const r = await createHandoffTool(
+      deps,
+      sampleInput({ next_action: 'use key sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123456789' }) as never,
+    );
     expect(r.isError).toBeUndefined();
     expect(JSON.stringify(sent[0])).not.toContain('sk-ant');
     expect(r.content[0]?.text).toContain(ID);
@@ -68,14 +86,22 @@ describe('create_handoff', () => {
   });
 
   it('maps API errors without leaking anything sensitive', async () => {
-    const { deps } = setup({ createHandoff: async () => { throw new SessionBridgeApiError(429, 'rate_limited', 'Too many requests. Retry later.'); } });
+    const { deps } = setup({
+      createHandoff: async () => {
+        throw new SessionBridgeApiError(429, 'rate_limited', 'Too many requests. Retry later.');
+      },
+    });
     const r = await createHandoffTool(deps, sampleInput() as never);
     expect(r.isError).toBe(true);
     expect(r.content[0]?.text).toContain('rate_limited');
   });
 
   it('does not claim success when the call fails unexpectedly', async () => {
-    const { deps } = setup({ createHandoff: async () => { throw new Error('boom with sbt_secret'); } });
+    const { deps } = setup({
+      createHandoff: async () => {
+        throw new Error('boom with sbt_secret');
+      },
+    });
     const r = await createHandoffTool(deps, sampleInput() as never);
     expect(r.isError).toBe(true);
     expect(r.content[0]?.text).not.toContain('boom');
@@ -103,11 +129,25 @@ describe('resume_handoff / delete_handoff / search_archive', () => {
   });
 
   it('surfaces not-found/expired errors and flags truncation', async () => {
-    const failing = setup({ resume: async () => { throw new SessionBridgeApiError(410, 'expired', 'This handoff has expired.'); } });
+    const failing = setup({
+      resume: async () => {
+        throw new SessionBridgeApiError(410, 'expired', 'This handoff has expired.');
+      },
+    });
     const r = await resumeHandoffTool(failing.deps, { handoff_id: ID, retrieval_token: TOKEN });
     expect(r.isError).toBe(true);
     expect(r.content[0]?.text).toContain('expired');
-    const trunc = setup({ resume: async (id) => ({ handoff_id: id, text: 'ctx', approx_tokens: 1, token_estimate: 'approximate', truncated: true, omitted: { completed: 3 }, archive: { available: false, reference: null } }) });
+    const trunc = setup({
+      resume: async (id) => ({
+        handoff_id: id,
+        text: 'ctx',
+        approx_tokens: 1,
+        token_estimate: 'approximate',
+        truncated: true,
+        omitted: { completed: 3 },
+        archive: { available: false, reference: null },
+      }),
+    });
     const t = await resumeHandoffTool(trunc.deps, { handoff_id: ID, retrieval_token: TOKEN });
     expect(t.content[0]?.text).toContain('TRUNCATED');
   });

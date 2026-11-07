@@ -14,10 +14,12 @@
     "packages/mcp-server"
   ],
   "scripts": {
+    "setup:env": "node scripts/setup-env.mjs",
     "db:up": "docker compose up -d db",
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
+    "smoke": "node scripts/smoke.mjs",
     "build": "npm run db:generate && npm run build -w @session-bridge/shared && npm run build -w @session-bridge/mcp-server && npm run build -w @session-bridge/api",
     "dev": "tsx watch apps/api/src/server.ts",
     "start": "node apps/api/dist/server.js",

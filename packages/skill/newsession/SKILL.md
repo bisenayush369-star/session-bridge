@@ -1,7 +1,7 @@
 ---
 name: newsession
 description: Save this session's context as a Session Bridge handoff (/newsession) or resume one in a fresh chat from its hs_ ID. Needs the session-bridge MCP tools create_handoff and resume_handoff.
-argument-hint: "[resume <handoff_id>]"
+argument-hint: '[resume <handoff_id>]'
 ---
 
 # /newsession: hand off work to a fresh conversation

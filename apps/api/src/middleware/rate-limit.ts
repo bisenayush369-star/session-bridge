@@ -49,7 +49,8 @@ export class FixedWindowLimiter {
   isBlocked(key: string): { blocked: boolean; retryAfterSeconds: number } {
     const now = this.clock.now();
     const bucket = this.buckets.get(key);
-    if (!bucket || bucket.resetAt <= now || bucket.count < this.limit) return { blocked: false, retryAfterSeconds: 0 };
+    if (!bucket || bucket.resetAt <= now || bucket.count < this.limit)
+      return { blocked: false, retryAfterSeconds: 0 };
     return { blocked: true, retryAfterSeconds: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) };
   }
 

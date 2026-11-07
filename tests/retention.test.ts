@@ -26,7 +26,8 @@ describe('retention', () => {
   });
 
   it('rejects unknown policies and disabled persistent retention', () => {
-    for (const bad of ['forever', '7d', 30, null, '']) expect(thrown(() => resolveRetention(bad, '30d', true)).status).toBe(400);
+    for (const bad of ['forever', '7d', 30, null, ''])
+      expect(thrown(() => resolveRetention(bad, '30d', true)).status).toBe(400);
     expect(thrown(() => resolveRetention('persistent', '30d', false)).status).toBe(400);
   });
 });

@@ -57,7 +57,12 @@ export function makeService(over: Partial<ServiceConfig> = {}, generateId?: () =
     tombstoneDays: 7,
     ...over,
   };
-  const service = new HandoffService({ repo, config, now: () => clock.date(), ...(generateId ? { generateId } : {}) });
+  const service = new HandoffService({
+    repo,
+    config,
+    now: () => clock.date(),
+    ...(generateId ? { generateId } : {}),
+  });
   return { clock, repo, service, config };
 }
 

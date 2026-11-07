@@ -16,7 +16,13 @@ import {
 import { AppError, errors } from '../errors.js';
 import { generateHandoffId, generateRetrievalToken, hashToken, verifyToken } from './credentials.js';
 import { computeExpiry, isExpired, resolveRetention } from './retention.js';
-import { DuplicateIdError, type HandoffRecord, type HandoffRepository, type PurgeResult, type StoreStats } from './repository.js';
+import {
+  DuplicateIdError,
+  type HandoffRecord,
+  type HandoffRepository,
+  type PurgeResult,
+  type StoreStats,
+} from './repository.js';
 
 const DAY = 86_400_000;
 
@@ -99,14 +105,18 @@ export class HandoffService {
       memory = applyBudget(memory, cfg.memoryBudgetBytes);
     } catch (e) {
       if (e instanceof MemoryTooLargeError) {
-        throw errors.tooLarge('Memory is too large even after deterministic reduction; shorten objective or constraints.');
+        throw errors.tooLarge(
+          'Memory is too large even after deterministic reduction; shorten objective or constraints.',
+        );
       }
       throw e;
     }
 
     const warnings = [...(memory.omitted?.notes ?? [])];
     if (redactions > 0) {
-      warnings.push(`${redactions} secret-like value(s) were redacted. Automated detection is imperfect; review your input.`);
+      warnings.push(
+        `${redactions} secret-like value(s) were redacted. Automated detection is imperfect; review your input.`,
+      );
     }
     const createdAt = this.now();
     const expiresAt = computeExpiry(retention, createdAt);
@@ -189,7 +199,11 @@ export class HandoffService {
   }
 
   /** Idempotent: memory is scrubbed on the first call; later calls with the same token succeed until the tombstone is purged. */
-  async remove(id: string, token: string, hooks: Hooks = {}): Promise<{ handoff_id: string; status: 'deleted' }> {
+  async remove(
+    id: string,
+    token: string,
+    hooks: Hooks = {},
+  ): Promise<{ handoff_id: string; status: 'deleted' }> {
     await this.authorize(id, token, { lenient: true });
     hooks.afterAuth?.();
     await this.deps.repo.markDeleted(id, this.now());
@@ -207,7 +221,10 @@ export class HandoffService {
     return this.deps.repo.purge({
       now,
       tombstoneBefore: new Date(now.getTime() - cfg.tombstoneDays * DAY),
-      inactiveBefore: cfg.persistentInactivityDays > 0 ? new Date(now.getTime() - cfg.persistentInactivityDays * DAY) : null,
+      inactiveBefore:
+        cfg.persistentInactivityDays > 0
+          ? new Date(now.getTime() - cfg.persistentInactivityDays * DAY)
+          : null,
     });
   }
 
@@ -219,7 +236,11 @@ export class HandoffService {
    * Unknown id, wrong token and deleted handoffs all produce the same 404 so existence is not revealed.
    * A dummy hash is compared when the row is missing to keep timing similar.
    */
-  private async authorize(id: string, token: string, opts: { lenient?: boolean } = {}): Promise<HandoffRecord> {
+  private async authorize(
+    id: string,
+    token: string,
+    opts: { lenient?: boolean } = {},
+  ): Promise<HandoffRecord> {
     if (!HANDOFF_ID_PATTERN.test(id)) throw errors.notFound();
     const rec = await this.deps.repo.findByPublicId(id);
     const valid = verifyToken(token, rec?.tokenHash ?? this.dummyHash, this.deps.config.tokenPepper);

@@ -54,7 +54,15 @@ describe('credentials', () => {
     const token = generateRetrievalToken();
     expect(parseBearer(`Bearer ${token}`)).toBe(token);
     expect(parseBearer(`bearer ${token}`)).toBe(token);
-    for (const bad of [undefined, '', token, `Basic ${token}`, 'Bearer short', `Bearer ${token} extra`, `Bearer ${token.replace('sbt_', 'xyz_')}`]) {
+    for (const bad of [
+      undefined,
+      '',
+      token,
+      `Basic ${token}`,
+      'Bearer short',
+      `Bearer ${token} extra`,
+      `Bearer ${token.replace('sbt_', 'xyz_')}`,
+    ]) {
       expect(parseBearer(bad)).toBeNull();
     }
   });

@@ -27,13 +27,21 @@ describe('normalizeMemory', () => {
         ],
       }),
     );
-    expect(m.relevant_files).toEqual([{ path: 'src/a.ts', note: 'first', symbols: ['foo', 'bar'] }, { path: 'src/b.ts' }]);
+    expect(m.relevant_files).toEqual([
+      { path: 'src/a.ts', note: 'first', symbols: ['foo', 'bar'] },
+      { path: 'src/b.ts' },
+    ]);
   });
 
   it('accepts string and object failed attempts and dedupes on attempt+result', () => {
     const m = normalizeMemory(
       sampleInput({
-        failed_attempts: ['tried X', { attempt: 'tried X' }, { attempt: 'tried Y', result: 'broke' }, { attempt: 'tried Y', result: 'broke' }],
+        failed_attempts: [
+          'tried X',
+          { attempt: 'tried X' },
+          { attempt: 'tried Y', result: 'broke' },
+          { attempt: 'tried Y', result: 'broke' },
+        ],
       }),
     );
     expect(m.failed_attempts).toEqual([{ attempt: 'tried X' }, { attempt: 'tried Y', result: 'broke' }]);
@@ -41,7 +49,9 @@ describe('normalizeMemory', () => {
 
   it('is deterministic and defaults every list to empty', () => {
     const input = sampleInput();
-    expect(JSON.stringify(normalizeMemory(input))).toBe(JSON.stringify(normalizeMemory(structuredClone(input))));
+    expect(JSON.stringify(normalizeMemory(input))).toBe(
+      JSON.stringify(normalizeMemory(structuredClone(input))),
+    );
     const m = normalizeMemory({ project: { name: 'P' }, objective: 'O', next_action: 'N' });
     expect(m.requirements).toEqual([]);
     expect(m.project.stack).toEqual([]);
