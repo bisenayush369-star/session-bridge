@@ -12,6 +12,8 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.string().min(1).optional(),
   DB_POOL_MAX: int(10, 1, 200),
+  DB_CONNECT_TIMEOUT_MS: int(15_000, 1_000, 120_000),
+  HEALTH_DB_TIMEOUT_MS: int(5_000, 500, 60_000),
   TOKEN_PEPPER: z.string().min(32, 'must be at least 32 characters'),
   TRUST_PROXY: z.string().default('false'),
   MCP_ACCESS_TOKEN: z.string().min(24, 'must be at least 24 characters').optional(),
@@ -59,6 +61,8 @@ export interface Config {
   logLevel: string;
   databaseUrl: string | undefined;
   dbPoolMax: number;
+  dbConnectTimeoutMs: number;
+  healthTimeoutMs: number;
   tokenPepper: string;
   /** Optional shared key required on POST /mcp (claude.ai connector request header). */
   mcpAccessToken: string | undefined;
@@ -103,6 +107,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     logLevel: e.LOG_LEVEL,
     databaseUrl: e.DATABASE_URL,
     dbPoolMax: e.DB_POOL_MAX,
+    dbConnectTimeoutMs: e.DB_CONNECT_TIMEOUT_MS,
+    healthTimeoutMs: e.HEALTH_DB_TIMEOUT_MS,
     tokenPepper: e.TOKEN_PEPPER,
     mcpAccessToken: e.MCP_ACCESS_TOKEN,
     trustProxy: parseTrustProxy(e.TRUST_PROXY),

@@ -11,7 +11,7 @@ const out = (value: unknown): void => void process.stdout.write(`${JSON.stringif
 
 const config = loadConfig();
 if (!config.databaseUrl) throw new Error('DATABASE_URL is required');
-const prisma = createPrisma(config.databaseUrl, 2);
+const prisma = createPrisma(config.databaseUrl, 2, config.dbConnectTimeoutMs);
 const service = new HandoffService({ repo: new PrismaHandoffRepository(prisma), config });
 
 try {

@@ -106,7 +106,8 @@ export class PrismaHandoffRepository implements HandoffRepository {
   }
 
   async stats(now: Date): Promise<StoreStats> {
-    const [active, expiredPending, tombstones] = await this.db.$transaction([
+    // These are independent reads, so a parallel fan-out avoids one slow transaction for all three.
+    const [active, expiredPending, tombstones] = await Promise.all([
       this.db.handoff.aggregate({
         where: { deletedAt: null, revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
         _count: { _all: true },
@@ -124,6 +125,6 @@ export class PrismaHandoffRepository implements HandoffRepository {
   }
 
   async ping(): Promise<void> {
-    await this.db.$queryRaw`SELECT 1`;
+    await this.db.handoff.findFirst({ select: { publicId: true } });
   }
 }

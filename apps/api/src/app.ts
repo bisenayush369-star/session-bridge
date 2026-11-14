@@ -36,7 +36,6 @@ export function buildApp(deps: AppDeps): FastifyInstance {
     connectionTimeout: 30_000,
     requestTimeout: 15_000,
     keepAliveTimeout: 5_000,
-    maxParamLength: 64,
   });
 
   const isHealth = (req: FastifyRequest): boolean => req.url === '/health' || req.url.startsWith('/health?');
@@ -102,7 +101,7 @@ export function buildApp(deps: AppDeps): FastifyInstance {
     reply.code(404).send({ error: { code: 'not_found', message: 'Route not found.' } }),
   );
 
-  registerHealthRoute(app, deps.repo);
+  registerHealthRoute(app, deps.repo, config.healthTimeoutMs);
   registerHandoffRoutes(app, deps);
   registerMcpRoute(app, deps);
   return app;

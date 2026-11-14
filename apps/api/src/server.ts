@@ -10,7 +10,7 @@ import { PrismaHandoffRepository } from './services/prisma-repository.js';
 const config = loadConfig();
 if (!config.databaseUrl) throw new Error('DATABASE_URL is required');
 
-const prisma = createPrisma(config.databaseUrl, config.dbPoolMax);
+const prisma = createPrisma(config.databaseUrl, config.dbPoolMax, config.dbConnectTimeoutMs);
 const repo = new PrismaHandoffRepository(prisma);
 const service = new HandoffService({ repo, config });
 const guard = new RequestGuard(config.rate);

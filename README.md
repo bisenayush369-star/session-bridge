@@ -288,4 +288,5 @@ output unless `SESSION_BRIDGE_REVEAL_TOKEN=false` · local token store is plaint
 MIT (see `LICENSE`): permissive, short, and trivially compatible with commercial use. Update the copyright holder
 before publishing. See [CONTRIBUTING.md](CONTRIBUTING.md). Third-party repositories evaluated for reuse (none
 integrated): [docs/repo-evaluation.md](docs/repo-evaluation.md).
+
 # session-bridge

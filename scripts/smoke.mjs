@@ -1,3 +1,5 @@
+/* global process, console, fetch */
+/* eslint no-console: ["error", { "allow": ["log", "error", "warn"] }] */
 import assert from 'node:assert/strict';
 
 const baseUrl = process.argv[2] || 'http://127.0.0.1:3000';
@@ -156,7 +158,12 @@ await check('mcp create_handoff tool', async () => {
   const { res, json } = await fetchJson(`${baseUrl}/mcp`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'create_handoff', arguments: sample() } }),
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 3,
+      method: 'tools/call',
+      params: { name: 'create_handoff', arguments: sample() },
+    }),
   });
   assert.equal(res.status, 200);
   assert.match(json.result.content[0].text, /hs_/);
@@ -166,7 +173,12 @@ await check('mcp resume_handoff tool', async () => {
   const create = await fetchJson(`${baseUrl}/mcp`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'create_handoff', arguments: sample() } }),
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 4,
+      method: 'tools/call',
+      params: { name: 'create_handoff', arguments: sample() },
+    }),
   });
   const text = create.json.result.content[0].text;
   const id = /(hs_[A-Za-z0-9_-]{16})/.exec(text)?.[1] ?? '';
@@ -176,7 +188,12 @@ await check('mcp resume_handoff tool', async () => {
   const { res, json: resumed } = await fetchJson(`${baseUrl}/mcp`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'resume_handoff', arguments: { handoff_id: id, retrieval_token: tokenValue } } }),
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 5,
+      method: 'tools/call',
+      params: { name: 'resume_handoff', arguments: { handoff_id: id, retrieval_token: tokenValue } },
+    }),
   });
   assert.equal(res.status, 200);
   assert.match(resumed.result.content[0].text, /Smoke test the API and MCP route/);
