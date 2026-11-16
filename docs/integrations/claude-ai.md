@@ -36,19 +36,20 @@ curl -sS -X POST https://YOUR-HOST/mcp \
 Expect JSON listing `create_handoff`, `resume_handoff`, `delete_handoff`, `search_archive`. For a fuller check run
 `npx @modelcontextprotocol/inspector`, choose Streamable HTTP and enter the URL. If it fails, fix it before involving claude.ai.
 
-## 3. Optional but recommended: an access key
+## 3. Optional access key
 
-Without one, anyone who learns your URL can create handoffs (rate limited) on your server. Set `MCP_ACCESS_TOKEN` (24+ characters,
-`openssl rand -base64 32`) in `.env`, restart, and `/mcp` will answer 401 unless the request carries it as
-`X-Session-Bridge-Key: <key>` (or `Authorization: Bearer <key>`). The help article describes a **Request headers** option for fixed
-credentials in the connector setup; if your screen offers it, add that header there. If it does not, leave `MCP_ACCESS_TOKEN`
-unset (claude.ai could not send the key, and requests would be refused). Handoffs stay protected by their tokens either way.
+Off by default, `MCP_ACCESS_TOKEN` is for your own clients or a reverse proxy that adds the header. It is not a confirmed
+claude.ai feature; if you want to keep the website connector path open, leave it unset. With it enabled, `/mcp` will answer
+401 unless the request carries it as `X-Session-Bridge-Key: <key>` (or `Authorization: Bearer <key>`). Handoffs remain
+protected by their own retrieval tokens either way.
 
 ## 4. Add the connector
 
 Per the article, for an individual account: click **+** (or **Add**) -> **Add custom connector** (some screens: Add -> Custom ->
-Web), enter the name `Session Bridge` and the URL `https://YOUR-HOST/mcp`, click **Continue**, check the authentication settings
-Claude detected (an open server should show none; add the request header here if you set an access key), then **Add**.
+Web), enter the name `Session Bridge` and the URL `https://YOUR-HOST/mcp`, click **Continue**, and review any authentication
+settings Claude detected. The custom connector form may expose a request-header field, but that behavior is not confirmed to work
+for claude.ai; if your screen does not offer it or you want to avoid extra friction, leave the server open and do not enable
+`MCP_ACCESS_TOKEN`.
 
 Enable it per conversation: in the chat click **+** (lower left) -> **Connectors** -> switch **Session Bridge** on.
 

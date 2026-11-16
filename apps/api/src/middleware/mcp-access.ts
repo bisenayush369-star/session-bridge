@@ -21,7 +21,9 @@ export function assertMcpAccess(
   const raw = headers['x-session-bridge-key'] ?? headers.authorization;
   const value = Array.isArray(raw) ? raw[0] : raw;
   const presented = (value ?? '').replace(/^Bearer\s+/i, '');
-  if (!timingSafeEqual(digest(presented), digest(expected))) {
+  const expectedDigest = digest(expected);
+  const presentedDigest = digest(presented);
+  if (presentedDigest.length !== expectedDigest.length || !timingSafeEqual(presentedDigest, expectedDigest)) {
     guard.recordFailure(ip, 'mcp-access');
     throw errors.mcpUnauthorized();
   }

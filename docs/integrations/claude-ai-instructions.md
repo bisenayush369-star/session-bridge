@@ -4,7 +4,7 @@ The simplest way to get the workflow on the Claude website needs **no server, tu
 Claude what `/newsession` means. When a chat gets big, type `/newsession`; Claude writes a compact handoff block; you copy it
 into a fresh chat and keep going.
 
-The Session Bridge server and connector (see `claude-ai.md`) are optional and only add short IDs, expiry/deletion and storage.
+The Session Bridge server and connector (see `claude-ai.md`) are optional and only add short IDs, expiry/deletion and storage. This path does not require a server or tunnel.
 
 ## 1. Compact instructions (Settings -> Profile preferences)
 

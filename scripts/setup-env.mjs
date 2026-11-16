@@ -16,11 +16,8 @@ if (fs.existsSync(envPath)) {
 
 const example = fs.readFileSync(examplePath, 'utf8');
 const pepper = randomBytes(48).toString('base64url');
-const next = example.replace(
-  'TOKEN_PEPPER=CHANGE_ME_generate_with_openssl_rand_base64_48',
-  `TOKEN_PEPPER=${pepper}`,
-);
-const withProxy = args.has('--tunnel') ? next.replace('TRUST_PROXY=true', 'TRUST_PROXY=true') : next;
+const next = example.replace(/TOKEN_PEPPER=.*/m, `TOKEN_PEPPER=${pepper}`);
+const withProxy = args.has('--tunnel') ? next.replace(/TRUST_PROXY=.*/m, 'TRUST_PROXY=true') : next;
 
 fs.writeFileSync(envPath, withProxy, 'utf8');
 console.log('Created .env with a new TOKEN_PEPPER and TRUST_PROXY=true');

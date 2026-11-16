@@ -5,7 +5,8 @@
 Please report suspected vulnerabilities **privately**; do not open a public issue.
 
 - Preferred: GitHub private vulnerability reporting (Security tab -> "Report a vulnerability") on this repository.
-- Alternative: email `security@YOUR-DOMAIN.example` (**maintainer: replace this placeholder before publishing**).
+
+If GitHub private vulnerability reporting is not available in your fork, contact the maintainer through the repository owner’s verified public profile and request a private channel.
 
 Include affected version/commit, reproduction steps, impact, and any proof of concept. Never include real handoff
 IDs or retrieval tokens. Maintainers should acknowledge reports promptly (target: a few business days), keep the

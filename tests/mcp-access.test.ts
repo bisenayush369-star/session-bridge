@@ -31,6 +31,16 @@ describe('assertMcpAccess', () => {
     assertMcpAccess(guard, 'ip', KEY, { authorization: `bearer ${KEY}` });
   });
 
+  it('returns a generic 401 without echoing the bad value', () => {
+    const guard = make();
+    const err = thrown(() => assertMcpAccess(guard, 'ip', KEY, { 'x-session-bridge-key': 'wrong-key' }));
+    expect(err.status).toBe(401);
+    expect(err.message).toBe(
+      'This endpoint needs its access key (header X-Session-Bridge-Key, or Authorization: Bearer <key>).',
+    );
+    expect(err.message).not.toContain('wrong-key');
+  });
+
   it('rejects missing, wrong and truncated keys with 401', () => {
     for (const headers of [
       {},

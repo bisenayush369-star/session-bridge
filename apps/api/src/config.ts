@@ -64,7 +64,7 @@ export interface Config {
   dbConnectTimeoutMs: number;
   healthTimeoutMs: number;
   tokenPepper: string;
-  /** Optional shared key required on POST /mcp (claude.ai connector request header). */
+  /** Optional shared key required on POST /mcp for your own clients or a reverse proxy that adds the header. */
   mcpAccessToken: string | undefined;
   trustProxy: boolean | string | string[];
   requireHttps: boolean;
