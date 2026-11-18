@@ -81,27 +81,33 @@ DB integration tests: `DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate deploy
 All configuration is environment-based and validated at startup (errors name variables, never values). See
 `.env.example` for every variable. Key ones:
 
-| Variable                     | Default                  | Meaning                                                                                                                                                            |
-| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATABASE_URL`               | –                        | PostgreSQL URL (required in production)                                                                                                                            |
-| `TOKEN_PEPPER`               | – (required, ≥ 32 chars) | Key for the HMAC that hashes retrieval tokens. Rotating it invalidates all tokens. Placeholder rejected in production                                              |
-| `TRUST_PROXY`                | `false`                  | Set `true`/hop count/CIDRs behind a proxy so client IP and `https` are detected                                                                                    |
-| `REQUIRE_HTTPS`              | `true` in production     | Non-https requests get 426 (`/health` exempt)                                                                                                                      |
-| `MAX_BODY_BYTES`             | 262144                   | HTTP body cap (413 above)                                                                                                                                          |
-| `MEMORY_BUDGET_BYTES`        | 65536                    | Stored memory budget; larger payloads are reduced deterministically and flagged                                                                                    |
-| `DEFAULT_RETENTION`          | `30d`                    | `24h`, `30d` or `90d` (persistent can never be the default)                                                                                                        |
-| `ALLOW_PERSISTENT_RETENTION` | `true`                   | Allow explicit `persistent`                                                                                                                                        |
-| `PERSISTENT_INACTIVITY_DAYS` | 365                      | Persistent handoffs unused this long are purged (0 disables)                                                                                                       |
-| `TOMBSTONE_DAYS`             | 7                        | Grace period during which repeated DELETEs stay idempotent                                                                                                         |
-| `CLEANUP_INTERVAL_MINUTES`   | 60                       | In-process cleanup cadence (0 = run `npm run cleanup:prod` from cron)                                                                                              |
-| `REDACT_SECRETS`             | `true`                   | Best-effort secret redaction on create                                                                                                                             |
-| `MCP_ACCESS_TOKEN`           | – (optional, ≥ 24 chars) | Off by default; for your own clients or a reverse proxy that adds the header. Claude.ai support is unconfirmed; do not enable it if you want Claude.ai to connect. |
-| `DB_POOL_MAX`                | 10                       | pg pool size per instance                                                                                                                                          |
+| Variable                     | Default                  | Meaning                                                                                                                                                                               |
+| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`               | –                        | PostgreSQL URL (required in production)                                                                                                                                               |
+| `TOKEN_PEPPER`               | – (required, ≥ 32 chars) | Key for the HMAC that hashes retrieval tokens. Rotating it invalidates all tokens. Placeholder rejected in production                                                                 |
+| `TRUST_PROXY`                | `false`                  | Set `true`/hop count/CIDRs behind a proxy so client IP and `https` are detected                                                                                                       |
+| `REQUIRE_HTTPS`              | `true` in production     | Non-https requests get 426 (`/health` exempt)                                                                                                                                         |
+| `MAX_BODY_BYTES`             | 262144                   | HTTP body cap (413 above)                                                                                                                                                             |
+| `MEMORY_BUDGET_BYTES`        | 65536                    | Stored memory budget; larger payloads are reduced deterministically and flagged                                                                                                       |
+| `DEFAULT_RETENTION`          | `30d`                    | `24h`, `30d` or `90d` (persistent can never be the default)                                                                                                                           |
+| `ALLOW_PERSISTENT_RETENTION` | `true`                   | Allow explicit `persistent`                                                                                                                                                           |
+| `PERSISTENT_INACTIVITY_DAYS` | 365                      | Persistent handoffs unused this long are purged (0 disables)                                                                                                                          |
+| `TOMBSTONE_DAYS`             | 7                        | Grace period during which repeated DELETEs stay idempotent                                                                                                                            |
+| `CLEANUP_INTERVAL_MINUTES`   | 60                       | In-process cleanup cadence (0 = run `npm run cleanup:prod` from cron)                                                                                                                 |
+| `REDACT_SECRETS`             | `true`                   | Best-effort secret redaction on create                                                                                                                                                |
+| `MCP_ACCESS_TOKEN`           | – (optional, ≥ 24 chars) | Off by default. When enabled, add `X-Session-Bridge-Key: <key>` under **Request headers** in the claude.ai custom connector dialog; the smoke test uses `MCP_ACCESS_TOKEN=<key>` too. |
+| `DB_POOL_MAX`                | 10                       | pg pool size per instance                                                                                                                                                             |
+
+## Zero-setup option (recommended for most people)
+
+Download [`newsession.zip`](https://github.com/bisenayush369-star/session-bridge/raw/main/packages/skill/newsession.zip) and do not unzip it. In claude.ai: Settings -> Capabilities -> turn on Code execution and file creation -> Skills -> Upload skill -> choose the zip -> enable it. In a long chat type `/newsession` to get a handoff file with the summary and the actual files; in a new chat attach it and type `/newsession resume`. No server, database, tunnel or account needed. Details: [docs/portable-handoff.md](docs/portable-handoff.md).
+
+The self-hosted connector below is optional: it stores only summaries behind an ID and token with expiry, needs a public https address and a machine that stays on. See [portable handoff details](docs/portable-handoff.md).
 
 ## Use it with claude.ai
 
-1. Self-hosted connector: run this API on a public HTTPS URL and add the connector in Claude.ai. Trade-off: easiest when you want a live server, but it needs an internet-reachable endpoint and the custom-connector flow is not confirmed in the authoring environment. See [docs/integrations/claude-ai.md](docs/integrations/claude-ai.md).
-2. No-server paste workflow: use the instruction block in [docs/integrations/claude-ai-instructions.md](docs/integrations/claude-ai-instructions.md). Trade-off: no tunnel, no server, no database required, but no short IDs, expiry controls, or stored handoffs.
+1. Zero-setup portable skill: download `newsession.zip`, upload it as an enabled skill in claude.ai, and attach the generated handoff archive to a fresh chat. No server is required. See [portable handoff details](docs/portable-handoff.md).
+2. Self-hosted connector: optional. Run the API on a public HTTPS URL, then add `Session Bridge` in Claude.ai. The dialog has a **Request headers** section (up to four headers); if `MCP_ACCESS_TOKEN` is enabled, add `X-Session-Bridge-Key: <key>` there. It stores summaries and needs a machine that stays on. See [docs/integrations/claude-ai.md](docs/integrations/claude-ai.md).
 
 Each person self-hosts their own copy; nobody shares the author's database.
 
@@ -241,7 +247,8 @@ credential**: it only forwards what the model supplies. By default it also saves
 `SESSION_BRIDGE_TOKEN_STORE=off` to disable, `SESSION_BRIDGE_REVEAL_TOKEN=false` to keep the token out of the
 conversation. Two ways to reach it: the local stdio server (Claude Code) and a **hosted, stateless Streamable HTTP endpoint
 `POST /mcp`** on the API itself (Claude.ai custom connectors). The hosted endpoint has no server credential either;
-every call carries the handoff's own token as a tool argument, and it has no local token store. `MCP_ACCESS_TOKEN` is off by default and is only for your own clients or a reverse proxy that adds the header; do not enable it if you want Claude.ai to connect.
+every call carries the handoff's own token as a tool argument, and it has no local token store. `MCP_ACCESS_TOKEN` is optional and off by default. When enabled, add `X-Session-Bridge-Key: <key>` under
+**Request headers** in the claude.ai connector dialog; the smoke test uses `MCP_ACCESS_TOKEN=<key>` too.
 
 **Website, no server:** [claude-ai-instructions.md](docs/integrations/claude-ai-instructions.md) defines `/newsession` with a
 pasted handoff block. Setup per environment: [Claude Code](docs/integrations/claude-code.md) ·
@@ -290,7 +297,7 @@ resumed session versus continuing the long one. The product does not measure tas
 
 In-memory, per-instance rate limits · redaction misses secrets · tokens appear in the creating conversation's tool
 output unless `SESSION_BRIDGE_REVEAL_TOKEN=false` · local token store is plaintext (permission-protected) · the hosted
-`/mcp` endpoint is unverified against a live claude.ai connector, always shows the token in chat and needs a public https URL · archives and `search_archive` not implemented · no per-user quotas
+`/mcp` endpoint always shows the retrieval token in chat and needs a public https URL · archives and `search_archive` not implemented · no per-user quotas
 (no accounts) · hand-written initial migration needs a drift check · versions unverified against live npm.
 
 ## License and contributing

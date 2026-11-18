@@ -3,9 +3,11 @@
 import assert from 'node:assert/strict';
 
 const baseUrl = process.argv[2] || 'http://127.0.0.1:3000';
+const mcpAccessToken = process.env.MCP_ACCESS_TOKEN;
 const headers = {
   Accept: 'application/json, text/event-stream',
   'Content-Type': 'application/json',
+  ...(mcpAccessToken ? { 'X-Session-Bridge-Key': mcpAccessToken } : {}),
 };
 
 const sample = () => ({

@@ -29,7 +29,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "cleanup:prod": "node apps/api/dist/scripts/admin.js cleanup"
+    "cleanup:prod": "node apps/api/dist/scripts/admin.js cleanup",
+    "build:skill": "tsx scripts/build-skill-zip.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

@@ -12,6 +12,25 @@ const front = Object.fromEntries(
   }),
 );
 
+describe('portable newsession skill', () => {
+  it('documents zero-setup save and resume workflows', () => {
+    expect(raw).toContain('Portable handoff (zero setup)');
+    expect(raw).toContain('newsession-handoff.zip');
+    expect(raw).toContain('/newsession resume');
+  });
+
+  it('allows the smoke test to send an optional MCP access key', () => {
+    const smoke = readFileSync(fileURLToPath(new URL('../scripts/smoke.mjs', import.meta.url)), 'utf8');
+    expect(smoke).toContain('process.env.MCP_ACCESS_TOKEN');
+    expect(smoke).toContain("'X-Session-Bridge-Key': mcpAccessToken");
+  });
+
+  it('has an uploadable zip artifact beside the skill package', () => {
+    const zip = fileURLToPath(new URL('../packages/skill/newsession.zip', import.meta.url));
+    expect(readFileSync(zip).byteLength).toBeGreaterThan(100);
+  });
+});
+
 describe('newsession SKILL.md', () => {
   it('has valid frontmatter whose name matches its directory', () => {
     expect(match).not.toBeNull();

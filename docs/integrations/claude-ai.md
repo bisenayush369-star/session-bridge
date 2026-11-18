@@ -2,6 +2,8 @@
 
 > **Simplest path, no server:** teach Claude what `/newsession` means and paste the handoff block into a new chat. See
 > `claude-ai-instructions.md`. The rest of this page is the optional connector route (short IDs, expiry, deletion).
+>
+> **Portable zero-setup option:** [Download/use the `/newsession` skill](../../packages/skill/newsession.zip) — no server or connector. It creates a handoff file containing the summary and actual files. See [docs/portable-handoff.md](../portable-handoff.md).
 
 Claude.ai uses **custom connectors**: remote MCP servers that Anthropic's cloud connects to over the internet. Session Bridge
 ships one at `POST /mcp` (stateless Streamable HTTP, JSON responses). Every handoff is protected by its own token, passed as a
@@ -38,18 +40,21 @@ Expect JSON listing `create_handoff`, `resume_handoff`, `delete_handoff`, `searc
 
 ## 3. Optional access key
 
-Off by default, `MCP_ACCESS_TOKEN` is for your own clients or a reverse proxy that adds the header. It is not a confirmed
-claude.ai feature; if you want to keep the website connector path open, leave it unset. With it enabled, `/mcp` will answer
-401 unless the request carries it as `X-Session-Bridge-Key: <key>` (or `Authorization: Bearer <key>`). Handoffs remain
-protected by their own retrieval tokens either way.
+Off by default, `MCP_ACCESS_TOKEN` is optional and is intended for a shared endpoint that you control. If you enable it,
+`/mcp` requires `X-Session-Bridge-Key: <key>` (or `Authorization: Bearer <key>`). Handoffs remain separately protected by
+their retrieval tokens.
+
+In the **Add custom connector** dialog, open **Request headers** (up to four headers). Add `X-Session-Bridge-Key` as the
+header name and paste the same secret as its value. Header values are stored securely and are never shown again. Leave the
+server's access token unset if you do not want to configure a header. The smoke test also needs the key: set
+`MCP_ACCESS_TOKEN=<key>` when running `npm run smoke -- https://YOUR-HOST`.
 
 ## 4. Add the connector
 
 Per the article, for an individual account: click **+** (or **Add**) -> **Add custom connector** (some screens: Add -> Custom ->
-Web), enter the name `Session Bridge` and the URL `https://YOUR-HOST/mcp`, click **Continue**, and review any authentication
-settings Claude detected. The custom connector form may expose a request-header field, but that behavior is not confirmed to work
-for claude.ai; if your screen does not offer it or you want to avoid extra friction, leave the server open and do not enable
-`MCP_ACCESS_TOKEN`.
+Web), enter the name `Session Bridge` and the URL `https://YOUR-HOST/mcp`, open **Request headers**, and add the optional
+`X-Session-Bridge-Key` entry described in step 3 if `MCP_ACCESS_TOKEN` is enabled. Values are stored securely and are never
+shown again. Click **Continue** and review the authentication settings Claude detected.
 
 Enable it per conversation: in the chat click **+** (lower left) -> **Connectors** -> switch **Session Bridge** on.
 

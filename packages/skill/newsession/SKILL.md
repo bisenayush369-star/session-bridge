@@ -1,6 +1,6 @@
 ---
 name: newsession
-description: Save this session's context as a Session Bridge handoff (/newsession) or resume one in a fresh chat from its hs_ ID. Needs the session-bridge MCP tools create_handoff and resume_handoff.
+description: Save a portable handoff archive with a summary and files (/newsession), or resume it in a fresh chat. No server required; Session Bridge MCP tools are optional.
 argument-hint: '[resume <handoff_id>]'
 ---
 
@@ -11,13 +11,29 @@ Two modes. Choose from the user's request:
 - **Save** (default: `/newsession`, "start a new session", "save context for a fresh chat").
 - **Resume** (`/newsession resume hs_...`, or the user gives an `hs_` handoff ID and wants to continue).
 
-## Preconditions (check first, never fake)
+## Preconditions (never fake)
 
-1. Confirm the MCP tools `create_handoff` and `resume_handoff` (server `session-bridge`) are available.
-   If they are not, say so plainly, point the user to the Session Bridge README for MCP setup, and stop.
-   Do not simulate a save, do not invent IDs or tokens, do not call arbitrary HTTP endpoints.
-2. Never put secrets (API keys, tokens, passwords, credentialed URLs) in a handoff. Refer to them by name only
+1. For a hosted handoff, confirm the MCP tools `create_handoff` and `resume_handoff` (server `session-bridge`) are available.
+   If they are unavailable, use the portable archive workflow below. Do not simulate a save or invent IDs/tokens.
+2. Never put secrets (API keys, tokens, passwords, credentialed URLs) in a handoff or archive. Refer to them by name only
    ("uses STRIPE_API_KEY from .env").
+
+## Portable handoff (zero setup)
+
+This skill works without the Session Bridge server, database, connector or account when Claude has Code execution and file creation enabled.
+
+### Portable save
+
+When the user invokes `/newsession` or asks to save for a fresh chat:
+
+1. Write `handoff.md` with objective, requirements, decisions, completed work, current state, failed attempts, constraints, open questions, assumptions, relevant files, next action and exact technical details.
+2. Copy the actual relevant files and directory structure into a handoff archive such as `newsession-handoff.zip`. Include source/configuration files needed to continue, but omit secrets, credentials, generated dependencies and unrelated files. Never copy `.env`, private keys, credentialed URLs or tokens; name them only by variable or secret name.
+3. Create a download link for the archive. Tell the user to attach the archive in a new chat and send `/newsession resume`.
+4. Do not use or claim a Session Bridge server unless `create_handoff` tools are actually available.
+
+### Portable resume
+
+When the user attaches a handoff archive and sends `/newsession resume`, read `handoff.md`, extract the included files, compare the summary with the current workspace, treat assumptions as unverified, do not redo completed work and continue at next action.
 
 ## Save workflow
 
